@@ -71,8 +71,12 @@ function handleSubmit() {
   justify-content: center; align-items: center; z-index: 1000;
 }
 .modal-content {
-  background-color: var(--surface); padding: 2rem; border-radius: 12px;
-  width: 100%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  background-color: var(--surface);
+  padding: 2.5rem 3rem; /* Aumentei o padding horizontal para 3rem */
+  border-radius: 12px;
+  width: 100%;
+  max-width: 550px; /* Aumentei a largura máxima para 550px */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 .modal-content h2 { margin-top: 0; margin-bottom: 1.5rem; }
 .form-group {

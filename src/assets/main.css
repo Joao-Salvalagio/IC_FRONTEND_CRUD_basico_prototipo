@@ -1,3 +1,9 @@
+/* Adiciona a regra de box-sizing para todo o projeto */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 /* 1. Define as cores do design como variáveis globais */
 :root {
   --background: #0B111E;
@@ -17,4 +23,18 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Animação de Fade para o Componente Transition do Vue */
+.fade-enter-active,
+.fade-leave-active {
+  /* Duração aumentada e 'transform' adicionado para animar a escala */
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  /* Efeito de escala para uma entrada/saída mais suave */
+  transform: scale(0.95);
 }
