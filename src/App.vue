@@ -6,8 +6,4 @@ import { RouterView } from 'vue-router'
   <RouterView />
 </template>
 
-<style scoped>
-/* Aqui podemos adicionar estilos globais para o layout principal depois, 
-  como a cor de fundo, para não precisar repetir em todas as páginas.
-*/
-</style>
+<style scoped></style>
