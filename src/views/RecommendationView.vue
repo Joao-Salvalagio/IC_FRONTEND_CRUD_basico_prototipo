@@ -6,14 +6,22 @@
         <p>Conte-nos suas necessidades para criarmos a build perfeita.</p>
       </header>
 
-      <section class="question-card">
+      <div class="progress-indicator">
+        <div class="step" :class="{ active: currentStep >= 1 }"><span>1</span> Uso Principal</div>
+        <div class="progress-line"></div>
+        <div class="step" :class="{ active: currentStep >= 2 }"><span>2</span> Detalhes</div>
+        <div class="progress-line"></div>
+        <div class="step" :class="{ active: currentStep >= 3 }"><span>3</span> Orçamento</div>
+      </div>
+
+      <section v-if="currentStep === 1" class="question-card">
         <h2>Qual será o uso principal do PC?</h2>
         <p class="subtitle">Isso nos ajuda a priorizar as peças certas para sua necessidade.</p>
         <div class="options-grid">
           <div
             class="option-item"
-            :class="{ selected: selectedUsage === 'Gaming' }"
-            @click="selectUsage('Gaming')"
+            :class="{ selected: selectedUsage === 'Jogos' }"
+            @click="selectUsage('Jogos')"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -27,7 +35,7 @@
               <path d="M6 17H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2" />
               <path d="M12 15v4H8l-4 4V15h12Z" />
             </svg>
-            <h3>Gaming</h3>
+            <h3>Jogos</h3>
             <p>Jogos e entretenimento</p>
           </div>
           <div
@@ -76,7 +84,102 @@
         </div>
       </section>
 
-      <section class="question-card">
+      <section v-if="currentStep === 2" class="question-card">
+        <div v-if="selectedUsage === 'Jogos'">
+          <h2>Que tipo de jogos você pretende jogar?</h2>
+          <p class="subtitle">
+            Isso define o poder necessário da sua placa de vídeo e processador.
+          </p>
+          <div class="options-grid">
+            <div
+              class="option-item"
+              :class="{ selected: selectedDetail === 'Leves' }"
+              @click="selectDetail('Leves')"
+            >
+              <h3>Leves</h3>
+              <p>Fortnite, LoL, Valorant</p>
+            </div>
+            <div
+              class="option-item"
+              :class="{ selected: selectedDetail === 'Intermediários' }"
+              @click="selectDetail('Intermediários')"
+            >
+              <h3>Intermediários</h3>
+              <p>CS2, Warzone, Apex</p>
+            </div>
+            <div
+              class="option-item"
+              :class="{ selected: selectedDetail === 'Pesados' }"
+              @click="selectDetail('Pesados')"
+            >
+              <h3>Pesados</h3>
+              <p>Cyberpunk, Alan Wake 2</p>
+            </div>
+          </div>
+        </div>
+        <div v-if="selectedUsage === 'Trabalho'">
+          <h2>Qual é sua principal ferramenta de trabalho?</h2>
+          <p class="subtitle">Isso nos ajuda a focar em processador, RAM ou placa de vídeo.</p>
+          <div class="options-grid">
+            <div
+              class="option-item"
+              :class="{ selected: selectedDetail === 'Office' }"
+              @click="selectDetail('Office')"
+            >
+              <h3>Office / Navegação</h3>
+              <p>Word, Excel, muitas abas</p>
+            </div>
+            <div
+              class="option-item"
+              :class="{ selected: selectedDetail === 'Edição de Vídeo' }"
+              @click="selectDetail('Edição de Vídeo')"
+            >
+              <h3>Edição de Vídeo / Imagem</h3>
+              <p>After Effects, Photoshop</p>
+            </div>
+            <div
+              class="option-item"
+              :class="{ selected: selectedDetail === 'Render 3D' }"
+              @click="selectDetail('Render 3D')"
+            >
+              <h3>Render 3D / CAD</h3>
+              <p>Blender, AutoCAD</p>
+            </div>
+          </div>
+        </div>
+        <div v-if="selectedUsage === 'Estudos'">
+          <h2>Como será seu uso para estudos?</h2>
+          <p class="subtitle">Isso nos ajuda a equilibrar custo e performance.</p>
+          <div class="options-grid">
+            <div
+              class="option-item"
+              :class="{ selected: selectedDetail === 'Básico' }"
+              @click="selectDetail('Básico')"
+            >
+              <h3>Uso Básico</h3>
+              <p>Textos, pesquisas, vídeos</p>
+            </div>
+            <div
+              class="option-item"
+              :class="{ selected: selectedDetail === 'Multitarefa' }"
+              @click="selectDetail('Multitarefa')"
+            >
+              <h3>Multitarefa / Hobby</h3>
+              <p>Programação, jogos leves</p>
+            </div>
+            <div
+              class="option-item"
+              :class="{ selected: selectedDetail === 'Engenharia' }"
+              @click="selectDetail('Engenharia')"
+            >
+              <h3>Engenharia / Dados</h3>
+              <p>Simulações, análise, IA</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="currentStep === 3" class="question-card">
         <h2>Qual é seu orçamento?</h2>
         <p class="subtitle">Definiremos as melhores peças dentro da sua faixa de preço.</p>
         <div class="options-grid-4">
@@ -119,13 +222,23 @@
         </div>
       </section>
 
-      <div class="generate-button-container">
+      <div class="navigation-buttons">
+        <button v-if="currentStep > 1" @click="prevStep" class="nav-btn secondary">Voltar</button>
         <button
-          class="generate-btn"
-          :disabled="!selectedUsage || !selectedBudget"
-          @click="generateRecommendation"
+          v-if="currentStep < 3"
+          @click="nextStep"
+          :disabled="isNextDisabled"
+          class="nav-btn primary"
         >
-          Gerar recomendação
+          Avançar
+        </button>
+        <button
+          v-if="currentStep === 3"
+          @click="generateRecommendation"
+          :disabled="!selectedBudget"
+          class="nav-btn primary"
+        >
+          Gerar Recomendação
         </button>
       </div>
     </div>
@@ -133,55 +246,68 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { store } from '../store.js'
+
+const router = useRouter()
+const currentStep = ref(1)
 
 const selectedUsage = ref(null)
+const selectedDetail = ref(null)
 const selectedBudget = ref(null)
-const recommendedBuild = ref(null) // Variável para guardar o resultado
 
 function selectUsage(usage) {
   selectedUsage.value = usage
+  selectedDetail.value = null
 }
-
+function selectDetail(detail) {
+  selectedDetail.value = detail
+}
 function selectBudget(budget) {
   selectedBudget.value = budget
 }
 
-// NOVA FUNÇÃO PARA CHAMAR A API
+function nextStep() {
+  if (currentStep.value < 3) {
+    currentStep.value++
+  }
+}
+function prevStep() {
+  if (currentStep.value > 1) {
+    currentStep.value--
+  }
+}
+
+const isNextDisabled = computed(() => {
+  if (currentStep.value === 1) {
+    return !selectedUsage.value
+  }
+  if (currentStep.value === 2) {
+    return !selectedDetail.value
+  }
+  return false
+})
+
 async function generateRecommendation() {
-  if (!selectedUsage.value || !selectedBudget.value) return
-
+  if (!selectedUsage.value || !selectedDetail.value || !selectedBudget.value) return
   try {
-    const requestBody = {
-      usage: selectedUsage.value,
-      budget: selectedBudget.value,
-    }
-
     const response = await fetch('http://localhost:8080/api/recommendations/generate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        usage: selectedUsage.value,
+        detail: selectedDetail.value,
+        budget: selectedBudget.value,
+      }),
     })
-
-    if (!response.ok) {
-      throw new Error('Falha ao gerar recomendação')
-    }
-
+    if (!response.ok) throw new Error('Falha ao gerar recomendação')
     const buildData = await response.json()
-    recommendedBuild.value = buildData
-
-    // A MÁGICA ACONTECE AQUI: Exibimos o resultado no console
-    console.log('Build Recomendada:', recommendedBuild.value)
-    alert(
-      'Recomendação gerada com sucesso! Verifique o console do navegador (F12) para ver os detalhes da build.',
-    )
+    store.recommendedBuild = buildData
+    router.push('/resultado')
   } catch (error) {
     console.error('Erro ao gerar recomendação:', error)
-    alert(
-      'Ocorreu um erro ao gerar a recomendação. Verifique se a API está no ar e se há peças cadastradas.',
-    )
+    alert('Ocorreu um erro ao gerar a recomendação.')
   }
 }
 </script>
@@ -199,9 +325,9 @@ async function generateRecommendation() {
 }
 .view-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
-.view-header h1 {
+h1 {
   font-size: 2rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
@@ -210,13 +336,53 @@ async function generateRecommendation() {
   color: var(--text-secondary);
   font-size: 1rem;
 }
+.progress-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-secondary);
+  transition: color 0.4s;
+}
+.step span {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  background-color: var(--surface);
+  transition: all 0.4s;
+}
+.step.active {
+  color: var(--text-primary);
+}
+.step.active span {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.progress-line {
+  flex-grow: 1;
+  height: 2px;
+  background-color: var(--border-color);
+  margin: 0 1rem;
+  margin-bottom: 1.5rem;
+}
 .question-card {
   background-color: var(--surface);
   padding: 2rem;
   border-radius: 12px;
   margin-bottom: 2rem;
 }
-.question-card h2 {
+h2 {
   margin: 0 0 0.25rem 0;
   font-size: 1.5rem;
   font-weight: 600;
@@ -277,27 +443,42 @@ async function generateRecommendation() {
   display: block;
   margin-bottom: 0.5rem;
 }
-.generate-button-container {
-  text-align: center;
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
   margin-top: 1rem;
 }
-.generate-btn {
-  background-color: var(--primary);
-  color: var(--text-primary);
+.nav-btn {
   border: none;
-  padding: 1rem 3rem;
+  padding: 0.8rem 2.5rem;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 }
-.generate-btn:hover {
+.nav-btn.primary {
+  background-color: var(--primary);
+  color: var(--text-primary);
+}
+.nav-btn.primary:hover {
   background-color: var(--primary-hover);
 }
-.generate-btn:disabled {
+.nav-btn.primary:disabled {
   background-color: var(--border-color);
   color: var(--text-secondary);
   cursor: not-allowed;
+}
+.nav-btn.secondary {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+.nav-btn.secondary:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+.navigation-buttons:has(.generate-btn) {
+  justify-content: flex-end;
 }
 </style>

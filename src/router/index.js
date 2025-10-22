@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AdminView from '../views/AdminView.vue'
 import RecommendationView from '../views/RecommendationView.vue'
+import ResultsView from '../views/ResultsView.vue' // 1. Importa a nova View de Resultados
 import CpuManager from '../components/CpuManager.vue'
 import PlacaMaeManager from '../components/PlacaMaeManager.vue'
 import GpuManager from '../components/GpuManager.vue'
@@ -23,6 +24,12 @@ const router = createRouter({
       path: '/montar-pc',
       name: 'montar-pc',
       component: RecommendationView,
+    },
+    // 2. Adiciona a nova rota para a página de resultados
+    {
+      path: '/resultado',
+      name: 'resultado',
+      component: ResultsView,
     },
     {
       path: '/admin',
