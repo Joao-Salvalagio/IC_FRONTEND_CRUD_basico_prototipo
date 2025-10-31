@@ -19,25 +19,63 @@
 
       <div class="component-list">
         <div class="component-item" v-for="(component, type) in build" :key="type">
-          <div class="component-type" v-if="component">
-            <span class="type-icon">{{ componentIcons[type] || '⚙️' }}</span>
-            <span class="type-name">{{ componentNames[type] || type }}</span>
-          </div>
-          <div class="component-details" v-if="component">
-            <span class="component-name">{{ component.nome }}</span>
-            <span class="component-brand">{{ component.marca }}</span>
-          </div>
-          <div class="component-price" v-if="component">
-            <span>R$ {{ component.preco.toFixed(2) }}</span>
-          </div>
-          <div class="component-details not-found" v-else>
-            <span class="component-name"
-              >Nenhum(a) {{ componentNames[type] || type }} compatível foi encontrado(a).</span
-            >
-          </div>
+
+          <template v-if="component">
+            <div class="component-type">
+              <span class="type-icon">{{ componentIcons[type] || '⚙️' }}</span>
+              <span class="type-name">{{ componentNames[type] || type }}</span>
+            </div>
+            <div class="component-details">
+              <span class="component-name">{{ component.nome }}</span>
+              <span class="component-brand">{{ component.marca }}</span>
+            </div>
+            <div class="component-price">
+              <span>R$ {{ component.preco.toFixed(2) }}</span>
+            </div>
+          </template>
+
+          <template v-else-if="type === 'refrigeracao'">
+            <div class="component-type">
+              <span class="type-icon">❄️</span>
+              <span class="type-name">Refrigeração</span>
+            </div>
+            <div v-if="build.cpu && !doesCpuNeedCooler(build.cpu)" class="component-details included">
+              <span class="component-name">Cooler Box (Incluso com o Processador)</span>
+              <span class="component-brand">Não é necessário comprar um cooler separado.</span>
+            </div>
+            <div v-else class="component-details not-found">
+              <span class="component-name">Nenhum cooler compatível foi encontrado.</span>
+            </div>
+          </template>
+
+          <template v-else-if="type === 'gpu'">
+            <div class="component-type">
+              <span class="type-icon">🎮</span>
+              <span class="type-name">Placa de Vídeo (GPU)</span>
+            </div>
+            <div v-if="build.cpu && isApu(build.cpu)" class="component-details included">
+              <span class="component-name">Gráficos Integrados</span>
+              <span class="component-brand">Já incluso com o processador (APU).</span>
+            </div>
+            <div v-else class="component-details not-found">
+              <span class="component-name">Nenhuma GPU compatível foi encontrada.</span>
+            </div>
+          </template>
+
+          <template v-else>
+            <div class="component-type">
+              <span class="type-icon">⚠️</span>
+              <span class="type-name">{{ componentNames[type] || type }}</span>
+            </div>
+            <div class="component-details not-found">
+              <span class="component-name">Nenhum(a) {{ componentNames[type] || type }} compatível foi encontrado(a).</span>
+            </div>
+          </template>
+
         </div>
       </div>
     </div>
+
     <div class="container" v-else>
       <header class="view-header">
         <h1>Nenhuma recomendação encontrada</h1>
@@ -48,13 +86,11 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { store } from '../store.js' // Importa nosso "armazém"
+import { computed } from 'vue';
+import { store } from '../store.js';
 
-// Pega a build do armazém. Será nulo se o usuário acessar a página diretamente.
-const build = store.recommendedBuild
+const build = store.recommendedBuild;
 
-// Mapeamento de nomes e ícones para exibir na interface
 const componentNames = {
   cpu: 'Processador (CPU)',
   placaMae: 'Placa-mãe',
@@ -63,8 +99,8 @@ const componentNames = {
   armazenamento: 'Armazenamento',
   fonte: 'Fonte (PSU)',
   gabinete: 'Gabinete',
-  refrigeracao: 'Refrigeração',
-}
+  refrigeracao: 'Refrigeração'
+};
 
 const componentIcons = {
   cpu: '🖥️',
@@ -74,17 +110,31 @@ const componentIcons = {
   armazenamento: '💿',
   fonte: '⚡',
   gabinete: '📦',
-  refrigeracao: '❄️',
+  refrigeracao: '❄️'
+};
+
+const totalPrice = computed(() => {
+  if (!build) return 0;
+  return Object.values(build).reduce((sum, component) => {
+    return sum + (component?.preco || 0);
+  }, 0);
+});
+
+// Helper para saber se a CPU precisa de cooler (lógica do backend replicada)
+function doesCpuNeedCooler(cpu) {
+    if (!cpu || !cpu.nome) return true;
+    const name = cpu.nome.toUpperCase();
+    if (name.endsWith("G")) return false;
+    if (name.includes("I3-12100F") || name.includes("RYZEN 5 5600")) return false;
+    return true;
 }
 
-// Calcula o preço total somando o preço de cada componente
-const totalPrice = computed(() => {
-  if (!build) return 0
-  // Object.values pega todos os componentes e .reduce soma os preços
-  return Object.values(build).reduce((sum, component) => {
-    return sum + (component?.preco || 0)
-  }, 0)
-})
+// NOVA Helper para saber se a CPU é uma APU
+function isApu(cpu) {
+    if (!cpu || !cpu.nome) return false;
+    // Nossa lógica de backend define APUs como CPUs que terminam em "G"
+    return cpu.nome.toUpperCase().endsWith("G");
+}
 </script>
 
 <style scoped>
@@ -158,7 +208,6 @@ const totalPrice = computed(() => {
   background-color: var(--border-color);
   color: var(--text-primary);
 }
-
 .component-list {
   display: flex;
   flex-direction: column;
@@ -173,6 +222,7 @@ const totalPrice = computed(() => {
   justify-content: space-between;
   border: 1px solid var(--surface);
   transition: border-color 0.2s;
+  min-height: 60px;
 }
 .component-item:hover {
   border-color: var(--border-color);
@@ -221,6 +271,19 @@ const totalPrice = computed(() => {
 .not-found .component-name {
   font-style: italic;
   font-weight: 500;
+  color: #E53E3E;
+}
+.included {
+  width: 70%;
+  text-align: left;
+}
+.included .component-name {
+  font-weight: 500;
+  color: #38A169;
+}
+.included .component-brand {
+  font-style: italic;
+  font-size: 0.85rem;
   color: var(--text-secondary);
 }
 </style>

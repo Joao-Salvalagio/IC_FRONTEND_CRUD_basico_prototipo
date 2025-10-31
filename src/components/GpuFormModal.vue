@@ -3,22 +3,11 @@
     <div class="modal-content">
       <h2>{{ modalTitle }}</h2>
       <form @submit.prevent="handleSubmit">
-        <div class="form-group">
-          <label for="nome">Nome da Placa de Vídeo</label
-          ><input id="nome" v-model="formData.nome" type="text" required />
-        </div>
-        <div class="form-group">
-          <label for="marca">Marca</label
-          ><input id="marca" v-model="formData.marca" type="text" required />
-        </div>
-        <div class="form-group">
-          <label for="memoriaVram">Memória VRAM (GB)</label
-          ><input id="memoriaVram" v-model.number="formData.memoriaVram" type="number" required />
-        </div>
-        <div class="form-group">
-          <label for="preco">Preço</label
-          ><input id="preco" v-model.number="formData.preco" type="number" step="0.01" required />
-        </div>
+        <div class="form-group"><label for="nome">Nome da Placa de Vídeo</label><input id="nome" v-model="formData.nome" type="text" required /></div>
+        <div class="form-group"><label for="marca">Marca</label><input id="marca" v-model="formData.marca" type="text" required /></div>
+        <div class="form-group"><label for="memoriaVram">Memória VRAM (GB)</label><input id="memoriaVram" v-model.number="formData.memoriaVram" type="number" required /></div>
+        <div class="form-group"><label for="potencia">Potência Recomendada (W)</label><input id="potencia" v-model.number="formData.potenciaRecomendadaW" type="number" required /></div>
+        <div class="form-group"><label for="preco">Preço</label><input id="preco" v-model.number="formData.preco" type="number" step="0.01" required /></div>
         <div class="modal-actions">
           <button type="button" @click="$emit('close')" class="btn-cancel">Cancelar</button>
           <button type="submit" class="btn-save">Salvar</button>
@@ -29,38 +18,32 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
-const props = defineProps({ gpu: { type: Object, default: null } })
-const formData = ref({ id: null, nome: '', marca: '', memoriaVram: 0, preco: 0.0 })
-const modalTitle = computed(() => (props.gpu ? 'Editar GPU' : 'Adicionar Nova GPU'))
-watch(
-  () => props.gpu,
-  (newVal) => {
-    formData.value = newVal
-      ? { ...newVal }
-      : { id: null, nome: '', marca: '', memoriaVram: 0, preco: 0.0 }
-  },
-  { immediate: true },
-)
-const emit = defineEmits(['close', 'save'])
-function handleSubmit() {
-  emit('save', formData.value)
-}
+import { ref, watch, computed } from 'vue';
+const props = defineProps({ gpu: { type: Object, default: null } });
+
+// formData inicializado com TODOS os campos obrigatórios
+const formData = ref({ id: null, nome: '', marca: '', memoriaVram: 0, potenciaRecomendadaW: 0, preco: 0.0 });
+
+const modalTitle = computed(() => props.gpu ? 'Editar GPU' : 'Adicionar Nova GPU');
+
+watch(() => props.gpu, (newVal) => {
+  if (newVal) {
+    formData.value = { ...newVal };
+  } else {
+    // Resetar o formulário também inclui TODOS os campos
+    formData.value = { id: null, nome: '', marca: '', memoriaVram: 0, potenciaRecomendadaW: 0, preco: 0.0 };
+  }
+}, { immediate: true });
+
+const emit = defineEmits(['close', 'save']);
+function handleSubmit() { emit('save', formData.value); }
 </script>
 
 <style scoped>
-/* Estilos são idênticos aos outros modais */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
 .modal-content {
   background-color: var(--surface);
@@ -68,15 +51,10 @@ function handleSubmit() {
   border-radius: 12px;
   width: 100%;
   max-width: 550px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
-h2 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-}
-.form-group {
-  margin-bottom: 1.5rem;
-}
+h2 { margin-top: 0; margin-bottom: 1.5rem; }
+.form-group { margin-bottom: 1.5rem; }
 label {
   display: block;
   margin-bottom: 0.5rem;
